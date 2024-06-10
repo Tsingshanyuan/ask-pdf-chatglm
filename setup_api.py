@@ -4,13 +4,18 @@
 from use_openai import get_llm
 from use_openai import get_embeddings
 
-#使用chatglm配合huggingface
+# 使用chatglm配合huggingface
 from use_chatglm import get_llm
 from use_huggingface import get_embeddings
-'''
-#使用chatglm配合baichuan
+
+# 使用chatglm配合baichuan
 from use_chatglm import get_llm
 from use_baichuan import get_embeddings
+'''
+
+# 使用chatglm配合qianfan
+from use_chatglm import get_llm
+from use_qianfan import get_embeddings
 
 
 # ------------------------------------------------------------------------------
