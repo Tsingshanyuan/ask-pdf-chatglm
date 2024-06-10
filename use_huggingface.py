@@ -1,3 +1,4 @@
+# 需要翻墙才能用，需要本地部署huggingface model
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
 def get_embeddings():
