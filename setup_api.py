@@ -12,14 +12,15 @@ from use_huggingface import get_embeddings
 from use_chatglm import get_llm
 from use_baichuan import get_embeddings
 
-# 使用chatglm配合qianfan
-from use_chatglm import get_llm
-from use_qianfan import get_embeddings
-'''
-
 # 使用ernie文心一言
 from use_ernie import get_llm
 from use_ernie import get_embeddings
+'''
+
+# 使用chatglm配合qianfan
+from use_chatglm import get_llm
+from use_qianfan import get_embeddings
+
 
 # ------------------------------------------------------------------------------
 # 统一接口
