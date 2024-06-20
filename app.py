@@ -36,47 +36,38 @@ def main():
       embeddings =  setup_embeddings() # 统一接口
       knowledge_base = FAISS.from_texts(chunks, embeddings)
 
-      
-      # 检查 Session State 是否有对话历史记录
-      if 'conversation_history' not in st.session_state:
-          st.session_state.conversation_history = []
+      # 用于跟踪对话历史
+    if 'messages' not in st.session_state:
+        st.session_state.messages = []
+        
+    messages = st.container(height=600)
 
-      # 初始化迭代计数器
-      if 'iteration_count' not in st.session_state:
-          st.session_state.iteration_count = 0
-
-      # 显示用户输入和回答
-      while True:
-          # 为每次循环迭代生成一个唯一的 key
-          unique_key = f'user_question_{st.session_state.iteration_count}'
+    # 显示用户输入和回答
+    user_question = st.chat_input("Ask a question about your PDF:")
+    
+    if user_question:  # 确保用户输入了问题
+        # 加载LLM和QA链
+        llm = setup_llm() # 统一接口
+        chain = load_qa_chain(llm, chain_type="stuff")
+        
+        # 将用户输入添加到对话历史中
+        st.session_state.messages.append({"role": "user", "text": user_question})
+        
+        docs = knowledge_base.similarity_search(user_question)
+        
+        with get_openai_callback() as cb:
+            response = chain.run(input_documents=docs, question=user_question)
+        if response is not None:
+            # 将LLM的回答添加到对话历史中
+            st.session_state.messages.append({"role": "assistant", "text": response})
           
-          user_question = st.text_input("Ask a question about your PDF (type 'exit' to stop):", key=unique_key)
-          
-          # 如果用户输入了 'exit' 或者输入框为空，则退出循环
-          if user_question.strip().lower() == 'exit' or not user_question.strip():
-              break
-          
-          if user_question:  # 确保用户输入了问题
-              docs = knowledge_base.similarity_search(user_question)
 
-              llm = setup_llm() # 统一接口
-              chain = load_qa_chain(llm, chain_type="stuff")
-              with get_openai_callback() as cb:
-                  response = chain.run(input_documents=docs, question=user_question)
-                  # 存储对话历史
-                  st.session_state.conversation_history.append((user_question, response))
-
-              st.write(f"Q: {user_question}")
-              st.write(f"A: {response}")
-          
-          # 更新迭代计数器，为下一次循环准备
-          st.session_state.iteration_count += 1
-
-      # 显示对话历史
-      st.header("Conversation History")
-      for question, answer in st.session_state.conversation_history:
-          st.write(f"Q: {question}")
-          st.write(f"A: {answer}")
+    # 显示对话历史
+    for message in st.session_state.messages:
+        if message["role"] == "user":
+            messages.chat_message("user").write(message["text"])
+        elif message["role"] == "assistant":
+            messages.chat_message("assistant").write(message["text"])
     
 
 if __name__ == '__main__':
