@@ -18,29 +18,29 @@ def main():
     
     # extract the text
     if pdf is not None:
-      pdf_reader = PdfReader(pdf)
-      text = ""
-      for page in pdf_reader.pages:
-        text += page.extract_text()
+        pdf_reader = PdfReader(pdf)
+        text = ""
+        for page in pdf_reader.pages:
+            text += page.extract_text()
         
-      # split into chunks
-      text_splitter = CharacterTextSplitter(
+        # split into chunks
+        text_splitter = CharacterTextSplitter(
         separator="\n",
         chunk_size=1000,
         chunk_overlap=200,
         length_function=len
-      )
-      chunks = text_splitter.split_text(text)
-      
-      # create embeddings
-      embeddings =  setup_embeddings() # 统一接口
-      knowledge_base = FAISS.from_texts(chunks, embeddings)
+        )
+        chunks = text_splitter.split_text(text)
+        
+        # create embeddings
+        embeddings =  setup_embeddings() # 统一接口
+        knowledge_base = FAISS.from_texts(chunks, embeddings)
 
-      # 用于跟踪对话历史
+    # 用于跟踪对话历史
     if 'messages' not in st.session_state:
         st.session_state.messages = []
         
-    messages = st.container(height=600)
+    messages = st.container()
 
     # 显示用户输入和回答
     user_question = st.chat_input("Ask a question about your PDF:")
@@ -60,7 +60,6 @@ def main():
         if response is not None:
             # 将LLM的回答添加到对话历史中
             st.session_state.messages.append({"role": "assistant", "text": response})
-          
 
     # 显示对话历史
     for message in st.session_state.messages:
